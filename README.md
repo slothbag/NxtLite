@@ -1,0 +1,2 @@
+# NxtLite
+Lightweight Nxt client
