@@ -103,9 +103,6 @@ namespace NxtLite.WebServer
         public void tryTunnel(HttpListenerContext ctx) {
         	bool hadSuccess = false;
         	bool getBestPeer = false;
-        	
-        	if (ctx.Request.HttpMethod == "POST")
-        		return;
 			
 			while (!hadSuccess) {
 	    		Nodes.Node tmpNode = Nodes.getNxtPeerToUse(getBestPeer);
@@ -116,20 +113,44 @@ namespace NxtLite.WebServer
 	    		
 	    		tmpNode.connection_attempts++;
 	    		
-	        	hadSuccess = tunnelAPI(ctx, tmpNode);
+        		hadSuccess = tunnelAPI(ctx, tmpNode);
+	    			
 	        	getBestPeer = true;
 			}
         }
         
         public bool tunnelAPI(HttpListenerContext ctx, Nodes.Node publicNode) {
-
     		string querystring = ctx.Request.RawUrl;
     		string address = publicNode.address;
+    		string postData = null;
+    		
+    		//if POST get data from local browser API call
+    		if (ctx.Request.HttpMethod == "POST") {
+				System.IO.StreamReader reader = new System.IO.StreamReader(ctx.Request.InputStream, System.Text.Encoding.UTF8);
+				postData = reader.ReadToEnd();
+				postData = Uri.UnescapeDataString(postData);
+				reader.Close();
+    		}
+			
     		System.Net.WebResponse webresp = null;
     			
     		try {
 	        	System.Net.HttpWebRequest wr = (System.Net.HttpWebRequest)System.Net.HttpWebRequest.Create("http://" + address + ":7876" + querystring); 
 	        	wr.Timeout = 20000;
+	        	
+	        	//cater for POST calls
+	        	if (ctx.Request.HttpMethod == "POST") {
+	        		wr.Method = "POST";
+	        		wr.ContentType = "application/x-www-form-urlencoded";
+	        		
+	        		byte[] postBytes = System.Text.Encoding.UTF8.GetBytes(postData);
+					wr.ContentLength = postBytes.Length;
+	        	
+	        	    using (Stream s = wr.GetRequestStream()) {
+						s.Write(postBytes,0,postBytes.Length);
+				    }
+	        	}
+	        	
 	        	var sw = new System.Diagnostics.Stopwatch();
 	        	sw.Start();
 	        	webresp = wr.GetResponse();
@@ -154,15 +175,13 @@ namespace NxtLite.WebServer
         		    publicNode.block_sync_failures ++;
         		    publicNode.consecutive_errors ++;
         		    publicNode.last_error = "Unknown block";
-        		    //now need to connect to high priority node to try again
-        		    
         		    return false;
         		}
         	
         		publicNode.last_reachable = publicNode.last_checked;
         		bool hasBlockHeight = false;
         		
-        		if (querystring.Substring(0,37) == "/nxt?requestType=getBlockchainStatus&") {
+        		if (querystring.Length >= 37 && querystring.Substring(0,37) == "/nxt?requestType=getBlockchainStatus&") {
         			try {
 	        			JObject joGetBlockResponse = JObject.Parse(response_data);
 	        			publicNode.last_block = joGetBlockResponse.SelectToken("lastBlock").ToString();
@@ -190,11 +209,11 @@ namespace NxtLite.WebServer
         			if (publicNode.block_height < Nodes.latest_block_height) {
 	        		    publicNode.block_sync_failures ++;
 	        		    publicNode.consecutive_errors ++;
-	        		    publicNode.last_error = "Not fully sync'd";        				
+	        		    publicNode.last_error = "Not fully sync'd";
+	        		    return false;
         			}
         				
-        		}
-        			
+        		}	
         		
         		publicNode.consecutive_errors = 0;
         		Nodes.SetLatestBlockHeight(publicNode.block_height);
@@ -213,34 +232,11 @@ namespace NxtLite.WebServer
         	}
         	catch {}
         	
-        	//first get the request from local client
-			//System.IO.StreamReader reader = new System.IO.StreamReader(ctx.Request.InputStream, System.Text.Encoding.UTF8);
-			//string data = reader.ReadToEnd();
-			//reader.Close();
-			
-			//if (data == "")
-			//	return false;
-			
-			//convert local request to byte array
-			//byte[] request_bytes = System.Text.Encoding.UTF8.GetBytes(data);
-			
-			//connect to remote node
-			//System.Net.Sockets.TcpClient tcpClient = new System.Net.Sockets.TcpClient();
-        	//tcpClient.Connect("213.46.57.77",7876);
-        	
-        	//Stream ByteStream = tcpClient.GetStream();
-        	//StreamWriter sw = new StreamWriter(ByteStream);
-        	
-        	//read the response from remote node
-        	//using (StreamReader sr = new StreamReader(ByteStream)) {
-        	//	string response_data = sr.ReadToEnd();
-        	//	byte[] response_bytes = System.Text.Encoding.UTF8.GetBytes(response_data);
-        	//	ctx.Response.OutputStream.Write(response_bytes,0,response_bytes.Length);
-        	//}
+
         	
         	return true;
         }
-        
+                
         public bool sendUI(string url, HttpListenerContext ctx) {
         	
         	if (url.IndexOf("?") >= 0)
@@ -303,30 +299,6 @@ namespace NxtLite.WebServer
     			sendError(ctx, "File not found");
         		return;
     		}
-    		
-        	/*else {
-        		Assembly assem;
-        		try {
-        			assem = Assembly.Load("Assets");
-        		}
-        		catch (Exception ex) {
-        			Console.WriteLine("Could not load Assets resource file");
-	        		sendError(ctx, "File not found");
-	        		return;        			
-        		}
-			    
-        		//get the file from Assets file
-				Stream s = assem.GetManifestResourceStream("Assets.ui." + filename);
-				System.IO.BinaryReader br = new System.IO.BinaryReader(s);
-				fileData = br.ReadAllBytes();
-				br.Close();
-				s.Close();
-				
-				if (fileData == null) {
-	        		sendError(ctx, "File not found");
-	        		return;
-				}
-        	}*/
 
         	if (filename.Substring(filename.Length - 4) == "html")
         		ctx.Response.Headers.Add("Content-Type","text/html");
@@ -340,7 +312,6 @@ namespace NxtLite.WebServer
         	//if its the NRS.js, inject our own JS hooks
         	if (filename == "/js/nrs.js") {
         		string tmpFileData = System.Text.Encoding.UTF8.GetString(fileData);
-        		//tmpFileData = tmpFileData.Replace("NRS.init();","$.getScript('nxtlite.js');if (typeof nxtliteready === 'undefined') return;NRS.init();");
         		tmpFileData = tmpFileData.Replace("NRS.init();","$.getScript('nxtlite.js');");
         		fileData = System.Text.Encoding.UTF8.GetBytes(tmpFileData);
         	}
