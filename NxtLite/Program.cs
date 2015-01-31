@@ -75,22 +75,7 @@ namespace NxtLite
 		}
 	   	
 	   	static void e_OnDocumentLoaded(object sender, WebViewLoadedEventArgs e) {
-			/*WebView wv = (WebView)sender;
-			
-			//dont apply the js injection if its about:blank on ititial load
-			//a 2nd documentloaded event will fire with the correct Uri which we then inject
-			//when NRS does a window.location.reload the Uri will be about:blank again, we inject again
-			if (e.Uri.ToString() == "about:blank" && firstload)
-				return;
-			
-			//DocumentLoaded fires with anchor links (ignore them)
-			if (e.Uri.ToString().EndsWith("#"))
-				return;
-			
-			firstload = false;
-			
-			wv.ExecuteScript("$.getScript('test.js');");
-			*/
+			//WebView wv = (WebView)sender;
 	   	}
 	   	
 	   	private void SetIconUnderWindows()
@@ -114,7 +99,6 @@ namespace NxtLite
 	{
 		public delegate void NoParamMethod();
 		
-		
 		[STAThread]
 		private static void Main(string[] args)
 		{
@@ -135,9 +119,14 @@ namespace NxtLite
 			var core = new WebServer.WebServer();
 			core.Run();
 			
+			//set up app closing event
+			app.Terminating += e_OnAppTerminating;
+			
 			//Then start the Gui which will connect to it
 			app.Run(myForm);
-			
+		}
+		
+		static void e_OnAppTerminating(object sender, object e) {
 			Nodes.SaveToDisk();
 		}
 	}
