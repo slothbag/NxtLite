@@ -1,0 +1,8 @@
+NxtLite/bin
+NxtLite/obj
+NxtLite/libs
+*.exe
+NxtLite/assets/*
+
+!NxtLite/assets/nxtlite.js
+!NxtLite/assets/bootbox.min.js
