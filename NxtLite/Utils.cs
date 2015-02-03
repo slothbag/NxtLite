@@ -8,8 +8,8 @@ public class Utils {
 	public static string getAppDirectory {
 		get {
 			string appdir = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-			string boatnet_appdir = Path.Combine(appdir, "NxtLite");
-			return boatnet_appdir;
+			string nxtlite_appdir = Path.Combine(appdir, "NxtLite");
+			return nxtlite_appdir;
 		}
 	}
 	public static bool doRESTfullApi(string url, out string result) {

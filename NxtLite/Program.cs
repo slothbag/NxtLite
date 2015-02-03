@@ -102,9 +102,6 @@ namespace NxtLite
 		[STAThread]
 		private static void Main(string[] args)
 		{
-			var app = new Application();
-			var myForm = new MyForm();
-			
 			//create the app config directory
 			if (!System.IO.Directory.Exists(Utils.getAppDirectory)) {
 				System.IO.Directory.CreateDirectory(Utils.getAppDirectory);
@@ -115,13 +112,29 @@ namespace NxtLite
 				Nodes.ScanLatestBlockHeight();
 			}
 			
-			//start the BoatNetCore
+			//manually enable localStorage for osx
+			Eto.Style.Add<Eto.Mac.Forms.Controls.WebViewHandler>(null, h =>
+			{
+				var webView = h.Control;
+				var path = new MonoMac.Foundation.NSString("~/.config/NxtLite");
+				MonoMac.ObjCRuntime.Messaging.void_objc_msgSend_IntPtr(webView.Preferences.Handle, MonoMac.ObjCRuntime.Selector.GetHandle("_setLocalStorageDatabasePath:"), path.Handle);
+				
+				MonoMac.ObjCRuntime.Messaging.void_objc_msgSend_bool(webView.Preferences.Handle, MonoMac.ObjCRuntime.Selector.GetHandle("setLocalStorageEnabled:"), true);
+				MonoMac.ObjCRuntime.Messaging.void_objc_msgSend_bool(webView.Preferences.Handle, MonoMac.ObjCRuntime.Selector.GetHandle("setDatabasesEnabled:"), true);
+				
+				h.Control.UIDelegate = new MyUIDelegate { Handler = h };
+			});
+			
+			var app = new Application();
+			var myForm = new MyForm();
+			
+			//start the Core
 			var core = new WebServer.WebServer();
 			core.Run();
 			
 			//set up app closing event
 			app.Terminating += e_OnAppTerminating;
-			
+						
 			//Then start the Gui which will connect to it
 			app.Run(myForm);
 		}
@@ -130,4 +143,16 @@ namespace NxtLite
 			Nodes.SaveToDisk();
 		}
 	}
+	
+	public class MyUIDelegate : Eto.Mac.Forms.Controls.WebViewHandler.UIDelegate
+	{
+		[MonoMac.Foundation.Export("webView:frame:exceededDatabaseQuotaForSecurityOrigin:database:")]
+		public void WebView (MonoMac.WebKit.WebView WebView, MonoMac.WebKit.WebFrame frame, IntPtr origin, MonoMac.Foundation.NSString databaseIdentifier)
+		{
+			MonoMac.Foundation.NSNumber quota = new MonoMac.Foundation.NSNumber(5 * 1024 * 1024);
+			MonoMac.ObjCRuntime.Messaging.void_objc_msgSend_IntPtr(origin, MonoMac.ObjCRuntime.Selector.GetHandle("setQuota:"), quota.Handle);
+		}
+	}
 }
+
+
