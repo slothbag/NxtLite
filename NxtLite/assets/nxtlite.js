@@ -6,6 +6,7 @@ function post_login() {
     $('#nrs_version_info').html('UI Version');
     $('#nrs_version').parent().replaceWith('<span id="nrs_version2" class="small-box-footer"></span>');
     $('#nrs_version2').html('1.4.12');
+    $('#add_peer_button').hide();
     
     NRS.pages.peers = function() {
         $.ajax({
