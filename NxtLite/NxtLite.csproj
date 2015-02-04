@@ -65,6 +65,7 @@
     <Compile Include="api\AddNode.cs" />
     <Compile Include="api\GetPeers.cs" />
     <Compile Include="api\GetStatus.cs" />
+    <Compile Include="api\Reset.cs" />
     <Compile Include="api\SetMode.cs" />
     <Compile Include="api\_APIProcessor.cs" />
     <Compile Include="Nodes.cs" />

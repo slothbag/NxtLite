@@ -166,5 +166,10 @@ namespace NxtLite
 			}
 			return;
 		}
+		
+		public static void ClearAll() {
+			_nodes.Clear();
+			Nodes.SaveToDisk();
+		}
 	}
 }

@@ -63,6 +63,7 @@ function activateMultiGUI() {
 
 function choseMulti() {    
     setNodemode('multi');
+    nxtlite_mode = 'Multi node';
     activateMultiGUI();
     bootbox.hideAll();
     ProceedWithInit();
@@ -76,9 +77,9 @@ function showAddNode() {
 
 function addSingle() {
     //get the ip address
-    var single_node = $('#singlenode_add_text').val();
-    //setNodemode('single');
-    addNode(single_node);
+    var single_address = $('#singlenode_add_text').val();
+    addNode(single_address);
+    nxtlite_mode = 'Single node (' + single_address + ')';
     bootbox.hideAll();
     ProceedWithInit();
 }
@@ -129,6 +130,25 @@ function showdialog() {
 function ProceedWithInit() {
     NRS.init();
     NRS.isLocalHost = false;
+
+    var html = '<div style="max-width:400px;min-width:400px;display:inline-block;color:#ffffff;"><span style="font-size:20px;">NxtLite</span> ';
+    html += '<div style="position:relative;top:-3px;" class="label label-default"><span class="glyphicon glyphicon-cog"></span> ' + nxtlite_mode + '</div>';
+    html += '<button id="nxtlite_btn_reset" style="position:relative;top:-3px;margin-left:20px;" class="btn btn-default btn-xs" data-toggle="tooltip" data-placement="right" title="Reset NxtLite settings"><span class="glyphicon glyphicon glyphicon-refresh"></span></button>'; 
+    html += '</div>';
+
+    $('#login_panel').before(html);
+    $('[data-toggle="tooltip"]').tooltip();
+    
+    //wire up the reset button
+    $('#nxtlite_btn_reset').on('click', function() {
+        $.getJSON('/api/reset', function(data) {
+            //alert(JSON.stringify(data));
+            window.location.reload();
+        })
+        .fail(function() {
+            alert('fail');
+        });
+    });
 }
 
 function getstatus() {
@@ -139,12 +159,16 @@ function getstatus() {
             dataType: 'json',
             success: function(data) {
                 //alert(data.result);
-                if (data.result == 'firstrun') {
+                if (data.result.mode == 'firstrun') {
                     showdialog();
                     return;
                 }
-                else if (data.result == 'multi') {
+                else if (data.result.mode == 'multi') {
+                    nxtlite_mode = 'Multi node';
                     activateMultiGUI();
+                }
+                else if (data.result.mode == 'single') {
+                    nxtlite_mode = 'Single node (' + data.result.address + ')';
                 }
                 
                 ProceedWithInit();
@@ -154,6 +178,9 @@ function getstatus() {
 
 //load bootbox.js
 bootbox = $.getScript("bootbox.min.js");
+
+//default some vars
+var nxtlite_mode = '';
 
 //check for first run
 getstatus();

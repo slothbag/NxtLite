@@ -27,6 +27,7 @@ namespace NxtLite.api
 			methodmap.Add("setmode", this.SetMode);
 			methodmap.Add("addnode", this.AddNode);
 			methodmap.Add("getpeers", this.GetPeers);
+			methodmap.Add("reset", this.Reset);
 		}
 		
 		public bool processAPI(string method, Dictionary<string, string> dParams) {
