@@ -328,12 +328,21 @@ namespace NxtLite.WebServer
         private void sendError(HttpListenerContext ctx, string message) {
         	message = "{\"result\":null,\"error\":\"" + message + "\"}";
         	byte[] message_bytes = System.Text.Encoding.UTF8.GetBytes(message);
-        	ctx.Response.OutputStream.Write(message_bytes,0,message_bytes.Length);
+        	
+        	try {
+        		ctx.Response.OutputStream.Write(message_bytes,0,message_bytes.Length);
+        	}
+        	catch {
+        	}
         }
         
         private void sendResponse(HttpListenerContext ctx, string message) {
         	byte[] message_bytes = System.Text.Encoding.UTF8.GetBytes(message);
-        	ctx.Response.OutputStream.Write(message_bytes,0,message_bytes.Length);
+        	try {
+        		ctx.Response.OutputStream.Write(message_bytes,0,message_bytes.Length);
+        	}
+        	catch {
+        	}
         }
     }
 }

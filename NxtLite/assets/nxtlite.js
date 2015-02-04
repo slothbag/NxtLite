@@ -5,7 +5,7 @@ function post_login() {
     $('#forging_indicator').remove(); 
     $('#nrs_version_info').html('UI Version');
     $('#nrs_version').parent().replaceWith('<span id="nrs_version2" class="small-box-footer"></span>');
-    $('#nrs_version2').html('1.4.11');
+    $('#nrs_version2').html('1.4.12');
     
     NRS.pages.peers = function() {
         $.ajax({
@@ -31,20 +31,22 @@ function post_login() {
 }
 
 function setNodemode(mode) {
-    $.getJSON('/api/setmode', "mode="+mode, function(data) {
-        //alert(JSON.stringify(data));
-    })
-    .fail(function() {
-        alert('fail');
+    $.ajax({
+        cache: false,
+        url: '/api/setmode',
+        dataType: 'json',
+        data: "mode=" + mode,
+        success: function(data) {}
     });
 }
 
 function addNode(address) {
-    $.getJSON('/api/addnode', 'address='+address, function(data) {
-        //alert(JSON.stringify(data));
-    })
-    .fail(function() {
-        alert('fail');
+    $.ajax({
+        cache: false,
+        url: '/api/addnode',
+        dataType: 'json',
+        data: 'address=' + address,
+        success: function(data) {}
     });
 }
 
@@ -141,12 +143,13 @@ function ProceedWithInit() {
     
     //wire up the reset button
     $('#nxtlite_btn_reset').on('click', function() {
-        $.getJSON('/api/reset', function(data) {
-            //alert(JSON.stringify(data));
-            window.location.reload();
-        })
-        .fail(function() {
-            alert('fail');
+        $.ajax({
+            cache: false,
+            url: '/api/reset',
+            dataType: 'json',
+            success: function(data) {
+                window.location.reload();
+            }
         });
     });
 }
