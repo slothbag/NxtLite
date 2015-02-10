@@ -81,7 +81,7 @@ namespace NxtLite
 	   	private void SetIconUnderWindows()
 		{
 	   		System.Drawing.Icon icon = System.Drawing.Icon.ExtractAssociatedIcon(System.Reflection.Assembly.GetEntryAssembly().Location);			
-			object formhandler = this.Handler.GetType().GetProperty("Control").GetValue(this.Handler);
+			object formhandler = this.Handler.GetType().GetProperty("Control").GetValue(this.Handler, null);
 			formhandler.GetType().GetProperty("Icon").SetValue(formhandler, icon, null);
 		}
 	   	
