@@ -171,7 +171,7 @@ namespace NxtLite.WebServer
         		string response_data = sr.ReadToEnd();
         		
         		//check for unknown block response, probably means non sync'd node
-        		if (querystring.Substring(0,26) == "/nxt?requestType=getBlock&" && response_data == "{\"errorCode\":5,\"errorDescription\":\"Unknown block\"}") {
+        		if (querystring.Length >= 26 && querystring.Substring(0,26) == "/nxt?requestType=getBlock&" && response_data == "{\"errorCode\":5,\"errorDescription\":\"Unknown block\"}") {
         		    publicNode.block_sync_failures ++;
         		    publicNode.consecutive_errors ++;
         		    publicNode.last_error = "Unknown block";
@@ -193,7 +193,7 @@ namespace NxtLite.WebServer
         			catch {}
        			}
         		
-        		if (querystring.Substring(0,26) == "/nxt?requestType=getState&") {
+        		if (querystring.Length >= 26 && querystring.Substring(0,26) == "/nxt?requestType=getState&") {
         			try {
 	        			JObject joGetBlockResponse = JObject.Parse(response_data);
 	        			publicNode.last_block = joGetBlockResponse.SelectToken("lastBlock").ToString();
