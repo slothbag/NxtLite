@@ -1,6 +1,6 @@
 [Setup]
 AppName=NxtLite
-AppVersion=0.6
+AppVersion=0.7
 DefaultDirName={pf}\NxtLite
 DefaultGroupName=NxtLite
 UninstallDisplayIcon={app}\NxtLite.exe
