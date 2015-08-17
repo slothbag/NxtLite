@@ -17,6 +17,7 @@ Source: "NxtLite\bin\Release\Newtonsoft.Json.dll"; DestDir: "{app}"
 Source: "NxtLite\assets\*"; DestDir: "{app}\assets"; Flags: recursesubdirs
 Source: "..\Electron\*"; DestDir: "{app}\electron"; Flags: recursesubdirs
 Source: "NxtLite\nxtlite.ico"; DestDir: "{app}"
+Source: "NxtLite\icon32.png"; DestDir: "{app}"
 Source: "gui_app\*"; DestDir: "{app}\gui_app"
 
 [Icons]

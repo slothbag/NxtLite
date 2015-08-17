@@ -23,6 +23,8 @@ app.on('ready', function() {
   var prc;
   if (require('fs').existsSync('NxtLite.exe'))
     prc = spawn('NxtLite.exe');
+  else
+    prc = spawn('NxtLite\\bin\\Release\\NxtLite.exe');
 
   //noinspection JSUnresolvedFunction
   prc.stdout.setEncoding('utf8');
@@ -38,18 +40,22 @@ app.on('ready', function() {
   });
 
   // Create the browser window.
-  mainWindow = new BrowserWindow({width: 1360, height: 768, "node-integration": false, title: "DApp Store"});
+  mainWindow = new BrowserWindow({width: 1360, height: 768, "node-integration": false, title: "NxtLite", icon: "icon32.png"});
+  mainWindow.setMenu(null);
 
   // and load the index.html of the app.
   mainWindow.loadUrl('http://127.0.0.1:1234');
 
   // Emitted when the window is closed.
   mainWindow.on('closed', function() {
-    // Dereference the window object, usually you would store windows
-    // in an array if your app supports multi windows, this is the time
-    // when you should delete the corresponding element.
     mainWindow = null;
   });
+
+  mainWindow.on('page-title-updated', function(e) {
+    e.preventDefault();
+  });
+
+  
 
   mainWindow.webContents.on('will-navigate', function(evnt, url) {
     if (url.indexOf("127.0.0.1:1234") >= 0) {
