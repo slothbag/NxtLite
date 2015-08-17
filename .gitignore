@@ -3,7 +3,8 @@ NxtLite/obj
 NxtLite/libs
 *.exe
 NxtLite/assets/*
-
+*.userprefs
+packages
 !NxtLite/assets/nxtlite.js
 !NxtLite/assets/bootbox.min.js
 !NxtLite/assets/README.md

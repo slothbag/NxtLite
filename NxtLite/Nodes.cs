@@ -113,18 +113,22 @@ namespace NxtLite
 			List<Nodes.Node> lNodes1;
 			List<Nodes.Node> lNodes2;
 			List<Nodes.Node> lNodes = new List<Nodes.Node>();
+
+			bool single_node = false;
+			if (Nodes._nodes.Count == 1)
+				single_node = true;
 			
 			lock (_nodes) {
 				if (getBest) {
 					lNodes1 =
 						(from p in _nodes
 						where p.latency > 0
-						where p.consecutive_errors == 0
+						where (single_node || p.consecutive_errors == 0)
 						orderby p.latency
 						select p).ToList<Nodes.Node>();
 					lNodes2 = 	
 						(from p in _nodes
-						where p.consecutive_errors == 0
+						where (single_node || p.consecutive_errors == 0)
 						orderby p.latency
 						select p).ToList<Nodes.Node>();
 					
@@ -134,7 +138,7 @@ namespace NxtLite
 				else {
 					lNodes1 =
 						(from p in _nodes
-						where p.consecutive_errors == 0
+						where (single_node || p.consecutive_errors == 0)
 						orderby p.last_checked
 						select p).ToList<Nodes.Node>();
 					
