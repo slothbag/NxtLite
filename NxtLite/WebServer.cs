@@ -169,6 +169,7 @@ namespace NxtLite.WebServer
         	
         	using (StreamReader sr = new StreamReader(NodeResponseStream)) {
         		string response_data = sr.ReadToEnd();
+				JObject jo = JObject.Parse(response_data);
         		
         		//check for unknown block response, probably means non sync'd node
         		if (querystring.Length >= 26 && querystring.Substring(0,26) == "/nxt?requestType=getBlock&" && response_data == "{\"errorCode\":5,\"errorDescription\":\"Unknown block\"}") {
@@ -177,6 +178,14 @@ namespace NxtLite.WebServer
         		    publicNode.last_error = "Unknown block";
         		    return false;
         		}
+
+				//check for Not Allowed response (peer has private Api)
+				JToken jt = jo.SelectToken("errorCode");
+				if (jt != null && jt.ToString() == "7") {
+					publicNode.consecutive_errors ++;
+					publicNode.last_error = "API Not Allowed";
+					return false;
+				}
         	
         		publicNode.last_reachable = publicNode.last_checked;
         		bool hasBlockHeight = false;
@@ -206,17 +215,17 @@ namespace NxtLite.WebServer
        			}
 
         		if (hasBlockHeight) {
-        			if (publicNode.block_height < Nodes.latest_block_height) {
+					if (publicNode.block_height < (Nodes.latest_block_height - 2)) {
 	        		    publicNode.block_sync_failures ++;
 	        		    publicNode.consecutive_errors ++;
 	        		    publicNode.last_error = "Not fully sync'd";
 	        		    return false;
-        			}
-        				
+        			}	
         		}	
         		
         		publicNode.consecutive_errors = 0;
-        		Nodes.SetLatestBlockHeight(publicNode.block_height);
+				if (hasBlockHeight)
+        			Nodes.SetLatestBlockHeight(publicNode.block_height);
         		
         		byte[] response_bytes = System.Text.Encoding.UTF8.GetBytes(response_data);
         		try {

@@ -5,7 +5,7 @@ function post_login() {
     $('#forging_indicator').remove(); 
     $('#nrs_version_info').html('UI Version');
     $('#nrs_version').parent().replaceWith('<span id="nrs_version2" class="small-box-footer"></span>');
-    $('#nrs_version2').html('1.4.15');
+    $('#nrs_version2').html('1.5.15');
     $('#add_peer_button').hide();
     
     NRS.pages.peers = function() {

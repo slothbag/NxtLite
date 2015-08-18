@@ -28,6 +28,7 @@ namespace NxtLite.api
 			methodmap.Add("addnode", this.AddNode);
 			methodmap.Add("getpeers", this.GetPeers);
 			methodmap.Add("reset", this.Reset);
+			methodmap.Add("savenodes", this.SaveNodes);
 		}
 		
 		public bool processAPI(string method, Dictionary<string, string> dParams) {

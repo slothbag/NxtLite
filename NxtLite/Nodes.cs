@@ -34,9 +34,9 @@ namespace NxtLite
 		}
 		
 		public static List<Nodes.Node> _nodes = new List<Nodes.Node>();
+		public static int[] block_height_history = new int[3];
 		
 		public static int latest_block_height = 0;
-		
 		
 		public static bool AddNodes(string address) {
 			_nodes.Add(new Node(address));
@@ -165,9 +165,17 @@ namespace NxtLite
 		}
 		
 		public static void SetLatestBlockHeight(int block_height) {
-			if (block_height > latest_block_height) {
-				latest_block_height = block_height;
+			if (block_height_history.Max() - block_height_history.Min() < 3) {
+				if (block_height_history.Max() > latest_block_height) {
+					latest_block_height = block_height_history.Max();
+				}
 			}
+
+			//cycle the block history queue
+			block_height_history[0] = block_height_history[1];
+			block_height_history[1] = block_height_history[2];
+			block_height_history[2] = block_height;
+
 			return;
 		}
 		
