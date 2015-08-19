@@ -32,15 +32,67 @@ namespace NxtLite
 				this.address = address;
 			}
 		}
+
+		public class PeerBlockHeightHistory {
+			private int last_agreed_block_height = 0;
+
+			private struct PeerBlockHeight {
+				public string ip_address;
+				public int block_height;
+			}
+
+			private PeerBlockHeight[] History = new PeerBlockHeight[3];
+
+			public int AgreedBlockHeight {
+				get { return this.last_agreed_block_height; }
+			}
+
+			private bool TryUpdateToLatestBlockHeight() {
+				int min = 0;
+				int max = 0;
+				for (int a = 0; a < History.Length; a++) {
+					//if the history buffer is not full then no agreement yet
+					if (History[a].block_height == 0)
+						return false;
+					
+					if (min == 0 || History[a].block_height < min)
+						min = History[a].block_height;
+					if (max == 0 || History[a].block_height > max)
+						max = History[a].block_height;
+				}
+				if (max - min < 3 && max > this.last_agreed_block_height) {
+					this.last_agreed_block_height = max;
+					return true;
+				}
+				else
+					return false;
+			}
+				
+			public void Add(string ip_address, int block_height) {
+				bool bFound = false;
+				for (int a = 0; a < History.Length; a++) {
+					if (History[a].ip_address == ip_address) {
+						History[a].block_height = block_height;
+						bFound = true;
+					}
+				}
+				if (!bFound) {
+					//not found, add it
+					History[0] = History[1];
+					History[1] = History[2];
+					History[2] = new PeerBlockHeight() {ip_address = ip_address, block_height = block_height};
+				}
+
+				if (this.TryUpdateToLatestBlockHeight())
+					Console.WriteLine("Last block set to " + this.AgreedBlockHeight);
+			}
+		}
 		
 		public static List<Nodes.Node> _nodes = new List<Nodes.Node>();
-		public static int[] block_height_history = new int[3];
-		
-		public static int latest_block_height = 0;
+		public static PeerBlockHeightHistory peer_block_height_history = new PeerBlockHeightHistory();
 		
 		public static bool AddNodes(string address) {
 			_nodes.Add(new Node(address));
-			
 			return true;
 		}
 		
@@ -154,28 +206,8 @@ namespace NxtLite
 			return lNodes.First();
 		}
 		
-		public static int ScanLatestBlockHeight() {
-			foreach (Node tmpNode in _nodes) {
-				if (tmpNode.block_height > latest_block_height) {
-					latest_block_height = tmpNode.block_height;
-					break;
-				}
-			}
-			return latest_block_height;
-		}
-		
-		public static void SetLatestBlockHeight(int block_height) {
-			if (block_height_history.Max() - block_height_history.Min() < 3) {
-				if (block_height_history.Max() > latest_block_height) {
-					latest_block_height = block_height_history.Max();
-				}
-			}
-
-			//cycle the block history queue
-			block_height_history[0] = block_height_history[1];
-			block_height_history[1] = block_height_history[2];
-			block_height_history[2] = block_height;
-
+		public static void SetLatestBlockHeight(string ip_address, int block_height) {
+			peer_block_height_history.Add(ip_address, block_height);
 			return;
 		}
 		

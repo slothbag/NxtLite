@@ -41,7 +41,7 @@ app.on('ready', function() {
   });
 
   // Create the browser window.
-  mainWindow = new BrowserWindow({width: 1360, height: 768, "node-integration": false, title: "NxtLite", icon: "icon32.png"});
+  mainWindow = new BrowserWindow({width: 1450, height: 768, "node-integration": false, title: "NxtLite", icon: "icon32.png"});
   mainWindow.setMenu(null);
 
   // and load the index.html of the app.

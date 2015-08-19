@@ -215,7 +215,7 @@ namespace NxtLite.WebServer
        			}
 
         		if (hasBlockHeight) {
-					if (publicNode.block_height < (Nodes.latest_block_height - 2)) {
+					if (publicNode.block_height < (Nodes.peer_block_height_history.AgreedBlockHeight - 2)) {
 	        		    publicNode.block_sync_failures ++;
 	        		    publicNode.consecutive_errors ++;
 	        		    publicNode.last_error = "Not fully sync'd";
@@ -225,7 +225,7 @@ namespace NxtLite.WebServer
         		
         		publicNode.consecutive_errors = 0;
 				if (hasBlockHeight)
-        			Nodes.SetLatestBlockHeight(publicNode.block_height);
+					Nodes.peer_block_height_history.Add(publicNode.address, publicNode.block_height);
         		
         		byte[] response_bytes = System.Text.Encoding.UTF8.GetBytes(response_data);
         		try {

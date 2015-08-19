@@ -20,7 +20,7 @@ namespace NxtLite
 			else {
 				//try load existing settings
 				Nodes.LoadFromFile();
-				Nodes.ScanLatestBlockHeight();
+				//Nodes.ScanLatestBlockHeight();
 			}
 			
 			//start the Core
