@@ -10,7 +10,7 @@ app.on('window-all-closed', function() {
   // On OS X it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
   if (process.platform != 'darwin') {
-    app.quit();
+    SaveAndQuit();
   }
 });
 
@@ -36,6 +36,7 @@ app.on('ready', function() {
 
   prc.on('close', function (code) {
       console.log('process exit code ' + code);
+      //NxtLite backend already closed, close Gui
       app.quit();
   });
 
@@ -55,8 +56,6 @@ app.on('ready', function() {
     e.preventDefault();
   });
 
-  
-
   mainWindow.webContents.on('will-navigate', function(evnt, url) {
     if (url.indexOf("127.0.0.1:1234") >= 0) {
       //this is a local request, let it happen
@@ -69,3 +68,23 @@ app.on('ready', function() {
     }
   });
 });
+
+function SaveAndQuit() {
+  var http = require('http');
+
+  var options = {
+    host: '127.0.0.1',
+    port: '1234',
+    path: '/api/savenodes',
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'Content-Length': 0
+    }
+  };
+
+  http.request(options, function(res) {
+    //got response from savenodes call, now exit gui (causing backend to close)
+    app.quit();
+  }).end();
+}
