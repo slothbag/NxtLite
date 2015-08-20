@@ -4,27 +4,58 @@ var BrowserWindow = require('browser-window');  // Module to create native brows
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is GCed.
 var mainWindow = null;
+var prc = null;
+var savenodes_done = false;
+var coreshutdown_done = false;
 
 // Quit when all windows are closed.
 app.on('window-all-closed', function() {
   // On OS X it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
   if (process.platform != 'darwin') {
-    SaveAndQuit();
+    app.quit();
   }
+});
+
+app.on('will-quit', function(e) {
+    if (!savenodes_done) {
+        e.preventDefault(); 
+        SaveNodes();
+        return;
+    }
+    if (!coreshutdown_done) {
+        e.preventDefault(); 
+        prc.kill();
+        return;
+    }
 });
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 app.on('ready', function() {
+  var path;
+  if (require('fs').existsSync('NxtLite.exe'))
+    path = "NxtLite.exe";
+  else if (require('fs').existsSync('core/NxtLite.exe'))
+    path = "core/NxtLite.exe";
+  else if (require('fs').existsSync('Resources/core/NxtLite.exe'))
+    path = "Resources/core/NxtLite.exe";
+  else if (require('fs').existsSync('NxtLite/bin/Release/NxtLite.exe'))
+    path = "NxtLite/bin/Release/NxtLite.exe";
+
+  var command;
+  var args = [];
+
+  if (require('os').platform() == 'win32')
+    command = path;
+  else {
+    command = "mono";
+    args.push(path);
+  }
 
   //spawn the Core
   var spawn = require('child_process').spawn;
-  var prc;
-  if (require('fs').existsSync('NxtLite.exe'))
-    prc = spawn('NxtLite.exe');
-  else
-    prc = spawn('NxtLite\\bin\\Release\\NxtLite.exe');
+    prc = spawn(command, args);
 
   //noinspection JSUnresolvedFunction
   prc.stdout.setEncoding('utf8');
@@ -37,15 +68,22 @@ app.on('ready', function() {
   prc.on('close', function (code) {
       console.log('process exit code ' + code);
       //NxtLite backend already closed, close Gui
+      coreshutdown_done = true;
+      //cant save nodes now, flag it as done
+      savenodes_done = true;
       app.quit();
   });
 
   // Create the browser window.
-  mainWindow = new BrowserWindow({width: 1450, height: 768, "node-integration": false, title: "NxtLite", icon: "icon32.png"});
+  mainWindow = new BrowserWindow({width: 1450, height: 768, "node-integration": false, title: "NxtLite", icon: "icon32.png" });
   mainWindow.setMenu(null);
+  //mainWindow.toggleDevTools();
 
   // and load the index.html of the app.
-  mainWindow.loadUrl('http://127.0.0.1:1234');
+  setTimeout(function() {
+    mainWindow.loadUrl('http://127.0.0.1:1234');
+  }, 1000);
+  
 
   // Emitted when the window is closed.
   mainWindow.on('closed', function() {
@@ -69,7 +107,7 @@ app.on('ready', function() {
   });
 });
 
-function SaveAndQuit() {
+function SaveNodes() {
   var http = require('http');
 
   var options = {
@@ -85,6 +123,9 @@ function SaveAndQuit() {
 
   http.request(options, function(res) {
     //got response from savenodes call, now exit gui (causing backend to close)
+    console.log("Nodes Saved.")
+    savenodes_done = true;
     app.quit();
   }).end();
+
 }
