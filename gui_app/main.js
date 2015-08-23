@@ -34,12 +34,10 @@ app.on('will-quit', function(e) {
 // initialization and is ready to create browser windows.
 app.on('ready', function() {
   var path;
-  if (require('fs').existsSync('NxtLite.exe'))
-    path = "NxtLite.exe";
-  else if (require('fs').existsSync('core/NxtLite.exe'))
+  if (require('fs').existsSync('core/NxtLite.exe'))
     path = "core/NxtLite.exe";
-  else if (require('fs').existsSync('Resources/core/NxtLite.exe'))
-    path = "Resources/core/NxtLite.exe";
+  else if (require('fs').existsSync(__dirname + '/../core/NxtLite.exe'))
+    path = __dirname + "/../core/NxtLite.exe";
   else if (require('fs').existsSync('NxtLite/bin/Release/NxtLite.exe'))
     path = "NxtLite/bin/Release/NxtLite.exe";
 
@@ -75,7 +73,7 @@ app.on('ready', function() {
   });
 
   // Create the browser window.
-  mainWindow = new BrowserWindow({width: 1450, height: 768, "node-integration": false, title: "NxtLite", icon: "icon32.png" });
+  mainWindow = new BrowserWindow({width: 1450, height: 768, "node-integration": false, title: "NxtLite", icon: "core/icon32.png" });
   mainWindow.setMenu(null);
   //mainWindow.toggleDevTools();
 

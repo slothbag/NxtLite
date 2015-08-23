@@ -8,3 +8,7 @@ packages
 !NxtLite/assets/nxtlite.js
 !NxtLite/assets/bootbox.min.js
 !NxtLite/assets/README.md
+build
+electron
+libdmg-hfsplus
+inno
