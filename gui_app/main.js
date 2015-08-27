@@ -7,6 +7,7 @@ var mainWindow = null;
 var prc = null;
 var savenodes_done = false;
 var coreshutdown_done = false;
+var core_ready = false;
 
 // Quit when all windows are closed.
 app.on('window-all-closed', function() {
@@ -34,7 +35,9 @@ app.on('will-quit', function(e) {
 // initialization and is ready to create browser windows.
 app.on('ready', function() {
   var path;
-  if (require('fs').existsSync('core/NxtLite.exe'))
+  if (require('fs').existsSync('NxtLite/bin/Debug/NxtLite.exe'))
+    path = "NxtLite/bin/Debug/NxtLite.exe";
+  else if (require('fs').existsSync('core/NxtLite.exe'))
     path = "core/NxtLite.exe";
   else if (require('fs').existsSync(__dirname + '/../core/NxtLite.exe'))
     path = __dirname + "/../core/NxtLite.exe";
@@ -58,7 +61,11 @@ app.on('ready', function() {
   //noinspection JSUnresolvedFunction
   prc.stdout.setEncoding('utf8');
   prc.stdout.on('data', function (data) {
-      var str = data.toString()
+      var str = data.toString();
+
+      if (str.substring(0, 23) == 'API server listening on')
+        core_ready = true;
+
       var lines = str.split(/(\r?\n)/g);
       console.log(lines.join(""));
   });
@@ -78,10 +85,7 @@ app.on('ready', function() {
   //mainWindow.toggleDevTools();
 
   // and load the index.html of the app.
-  setTimeout(function() {
-    mainWindow.loadUrl('http://127.0.0.1:1234');
-  }, 1000);
-  
+  LoadUrlIfDaemonReady();
 
   // Emitted when the window is closed.
   mainWindow.on('closed', function() {
@@ -104,6 +108,13 @@ app.on('ready', function() {
     }
   });
 });
+
+function LoadUrlIfDaemonReady() {
+  if (core_ready)
+    mainWindow.loadUrl('http://127.0.0.1:1234');
+  else
+    setTimeout(LoadUrlIfDaemonReady, 100);
+}
 
 function SaveNodes() {
   var http = require('http');
