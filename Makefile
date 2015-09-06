@@ -9,7 +9,7 @@
 
 electron_version = v0.31.2
 PROJECT = NxtLite
-VERSION = 0.12
+VERSION = 0.13
 ISCC = "inno/ISCC.exe"
 
 none:

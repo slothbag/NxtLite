@@ -86,7 +86,8 @@ app.on('ready', function() {
     "node-integration": false, 
     title: "NxtLite", 
     icon: "core/icon32.png",
-    resizable: false});
+    resizable: false,
+    center: true});
   loadWindow.setMenu(null);
   loadWindow.loadUrl('file://' + __dirname + '/init.html');
 
@@ -97,7 +98,8 @@ app.on('ready', function() {
     "node-integration": false, 
     title: "NxtLite", 
     icon: "core/icon32.png",
-    show: false });
+    show: false,
+    center: true });
   mainWindow.setMenu(null);
   //mainWindow.toggleDevTools();
 
@@ -124,7 +126,11 @@ app.on('ready', function() {
   });
 
   mainWindow.webContents.on('did-finish-load', function() {
-    loadWindow.close();
+    try {
+      loadWindow.close();
+    }
+    catch (err) {}
+    
     mainWindow.show();
   });
 });
