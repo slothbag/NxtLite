@@ -133,6 +133,7 @@ function showdialog() {
 function ProceedWithInit() {
     NRS.init();
     NRS.isLocalHost = false;
+    $('#loading_msg').hide();
 
     var html = '<div style="max-width:400px;min-width:400px;display:inline-block;color:#ffffff;"><span style="font-size:20px;">NxtLite</span> ';
     html += '<div style="position:relative;top:-3px;" class="label label-default"><span class="glyphicon glyphicon-cog"></span> ' + nxtlite_mode + '</div>';
@@ -155,6 +156,17 @@ function ProceedWithInit() {
     });
 }
 
+function activateSingleGUI() {
+	//hack to make Chrome redraw screen to fix scrollbar issue
+    if (navigator.userAgent.toLowerCase().indexOf('chrome') > -1) {
+        var original_function = NRS.setupClipboardFunctionality;
+	    NRS.setupClipboardFunctionality = function() {
+	        original_function.apply(this, arguments);    
+	        $(window).trigger('resize');
+	    }
+	}
+}
+
 function getstatus() {
     //send ajax request for firstrun
     $.ajax({
@@ -173,6 +185,7 @@ function getstatus() {
                 }
                 else if (data.result.mode == 'single') {
                     nxtlite_mode = 'Single node (' + data.result.address + ')';
+                    activateSingleGUI();
                 }
                 
                 ProceedWithInit();
