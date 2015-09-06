@@ -81,11 +81,12 @@ app.on('ready', function() {
 
   //create the loading window
   loadWindow = new BrowserWindow({
-    width: 640, 
-    height: 480, 
+    width: 512, 
+    height: 384, 
     "node-integration": false, 
     title: "NxtLite", 
-    icon: "core/icon32.png"});
+    icon: "core/icon32.png",
+    resizable: false});
   loadWindow.setMenu(null);
   loadWindow.loadUrl('file://' + __dirname + '/init.html');
 
