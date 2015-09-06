@@ -7,7 +7,7 @@
 # dmg (libdmg-hfsplus)
 # wget, unzip
 
-electron_version = v0.31.0
+electron_version = v0.31.2
 PROJECT = NxtLite
 VERSION = 0.12
 ISCC = "inno/ISCC.exe"
