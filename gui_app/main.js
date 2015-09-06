@@ -79,10 +79,25 @@ app.on('ready', function() {
       app.quit();
   });
 
+  //create the loading window
+  loadWindow = new BrowserWindow({
+    width: 640, 
+    height: 480, 
+    "node-integration": false, 
+    title: "NxtLite", 
+    icon: "core/icon32.png"});
+  loadWindow.setMenu(null);
+  loadWindow.loadUrl('file://' + __dirname + '/init.html');
+
   // Create the browser window.
-  mainWindow = new BrowserWindow({width: 1450, height: 768, "node-integration": false, title: "NxtLite", icon: "core/icon32.png" });
+  mainWindow = new BrowserWindow({
+    width: 1450, 
+    height: 768, 
+    "node-integration": false, 
+    title: "NxtLite", 
+    icon: "core/icon32.png",
+    show: false });
   mainWindow.setMenu(null);
-  mainWindow.loadUrl('file://' + __dirname + '/init.html');
   //mainWindow.toggleDevTools();
 
   // and load the index.html of the app.
@@ -102,11 +117,14 @@ app.on('ready', function() {
       //this is a local request, let it happen
     }
     else {
-      //var newWindow = new BrowserWindow({width: 800, height: 600, "node-integration": false});
-      //newWindow.loadUrl(url);
       require('shell').openExternal(url);
       evnt.preventDefault();
     }
+  });
+
+  mainWindow.webContents.on('did-finish-load', function() {
+    loadWindow.close();
+    mainWindow.show();
   });
 });
 

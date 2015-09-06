@@ -133,7 +133,6 @@ function showdialog() {
 function ProceedWithInit() {
     NRS.init();
     NRS.isLocalHost = false;
-    $('#loading_msg').hide();
 
     var html = '<div style="max-width:400px;min-width:400px;display:inline-block;color:#ffffff;"><span style="font-size:20px;">NxtLite</span> ';
     html += '<div style="position:relative;top:-3px;" class="label label-default"><span class="glyphicon glyphicon-cog"></span> ' + nxtlite_mode + '</div>';

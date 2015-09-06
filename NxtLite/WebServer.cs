@@ -324,14 +324,6 @@ namespace NxtLite.WebServer
         		tmpFileData = tmpFileData.Replace("NRS.init();","$.getScript('nxtlite.js');");
         		fileData = System.Text.Encoding.UTF8.GetBytes(tmpFileData);
         	}
-			if (filename == "/index.html") {
-				string tmpFileData = System.Text.Encoding.UTF8.GetString(fileData);
-				string html = "<div id=\"loading_msg\" style=\"font-family: Arial, Helvetica, sans-serif;position: fixed;top: 50%;left: 50%;transform: translate(-50%, -50%);\">";
-				html += "Loading NxtLite GUI content...</div>";
-				tmpFileData = tmpFileData.Replace("<body class=\"lockscreen fixed\">","<body class=\"lockscreen fixed\">" + html);
-				fileData = System.Text.Encoding.UTF8.GetBytes(tmpFileData);
-			}
-
         	
         	try {
         		ctx.Response.ContentLength64 = fileData.Length;
